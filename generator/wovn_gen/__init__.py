@@ -1,0 +1,1 @@
+"""wovn puzzle generator."""

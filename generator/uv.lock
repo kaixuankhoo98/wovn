@@ -219,7 +219,7 @@ wheels = [
 ]
 
 [[package]]
-name = "weave-gen"
+name = "wovn-gen"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

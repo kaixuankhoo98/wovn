@@ -5,12 +5,12 @@ import random
 import pytest
 
 from brute import brute_solutions
-from weave_gen.generate import pick_bridges
-from weave_gen.hamilton import backbite, find_hamiltonian_path
-from weave_gen.model import Endpoint, Grid, Puzzle
-from weave_gen.sat import count_solutions
-from weave_gen.segment import cut_path
-from weave_gen.walls import place_pieces
+from wovn_gen.generate import pick_bridges
+from wovn_gen.hamilton import backbite, find_hamiltonian_path
+from wovn_gen.model import Endpoint, Grid, Puzzle
+from wovn_gen.sat import count_solutions
+from wovn_gen.segment import cut_path
+from wovn_gen.walls import place_pieces
 
 
 def random_instance(size: int, seed: int) -> Puzzle | None:

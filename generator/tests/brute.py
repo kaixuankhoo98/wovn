@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from weave_gen.model import Puzzle
+from wovn_gen.model import Puzzle
 
 
 def brute_solutions(p: Puzzle, limit: int = 3) -> int:

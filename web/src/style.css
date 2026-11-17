@@ -91,10 +91,74 @@ body {
 
 .top {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+.day {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+[hidden] { display: none !important; }
+
+/* --- swatches: one small cloth per grid, sized 5 : 7 : 9 --- */
+.ladder {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.swatch { display: block; }
+.ladder .swatch { width: calc(var(--n) * 7px); }
+.swatch svg { display: block; width: 100%; height: auto; }
+/* At swatch size the loom lines need extra weight to read. */
+.swatch .loom { stroke-width: 5; }
+.swatch .frame { stroke-width: 14; }
+/* A blank swatch is just the loom: frame, cloth and grid lines. */
+.swatch:not(.done) :is(.knot, .wall, .socket) { display: none; }
+.swatch.upcoming { opacity: 0.5; }
+.swatch.current {
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--text);
+}
+.swatch.done svg { animation: none; }
+
+/* --- results --- */
+.results { padding-top: 4px; }
+.headline {
+  margin: 8px 0 24px;
+  font-size: clamp(2.5rem, 11vw, 3.75rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.samples {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+.samples li { flex: var(--n) 1 0; min-width: 0; }
+.caption {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+}
+.caption .time { color: var(--text); font-weight: 700; }
+.summary { margin: 0; max-width: 60ch; }
+.countdown { margin: 28px 0 0; color: var(--muted); }
+.countdown .time { color: var(--text); font-weight: 700; }
+.share-text {
+  margin: 8px 0 0;
+  font: inherit;
+  color: var(--text);
+  white-space: pre;
+  user-select: all;
 }
 .mark {
   margin: 0;
@@ -181,3 +245,19 @@ svg.solved { animation: settle 600ms ease-out; }
 @media (prefers-reduced-motion: reduce) {
   .knot-body.pulse, svg.solved { animation: none; }
 }
+
+.results .controls, .gate .controls { margin-top: 20px; }
+.results .controls .primary, .gate .controls .primary { margin-left: 0; }
+.gate .summary:empty { display: none; }
+.note { margin: 12px 0 0; color: var(--muted); max-width: 60ch; }
+
+/* Dev-only tools: dashed so they never pass for part of the game. */
+.dev-tool {
+  display: block;
+  margin-top: 40px;
+  background: transparent;
+  border: 1.5px dashed var(--muted);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.dev-tool:hover { background: var(--button); }

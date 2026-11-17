@@ -6,12 +6,16 @@ import argparse
 import json
 import sys
 import time
+from datetime import date
 from pathlib import Path
 
 from .generate import generate_many
 from .io import dump, load
 from .render import render
 from .sat import count_solutions
+from .schedule import schedule
+
+LAUNCH = "2026-11-17"  # puzzle No. 1
 
 
 def cmd_make(a: argparse.Namespace) -> None:
@@ -64,8 +68,19 @@ def cmd_show(a: argparse.Namespace) -> None:
         print()
 
 
+def cmd_schedule(a: argparse.Namespace) -> None:
+    launch = date.fromisoformat(a.launch)
+    start = date.fromisoformat(a.start) if a.start else launch
+    t0 = time.time()
+    made = 0
+    for day, path, wrote in schedule(launch, start, a.days, Path(a.out), a.force):
+        made += wrote
+        print(f"{path.name}: {'written' if wrote else 'exists, kept'}", file=sys.stderr)
+    print(f"{made} new days in {time.time() - t0:.1f}s", file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(prog="weave_gen")
+    ap = argparse.ArgumentParser(prog="wovn_gen")
     sub = ap.add_subparsers(required=True)
 
     m = sub.add_parser("make", help="generate candidate puzzles")
@@ -81,6 +96,14 @@ def main(argv: list[str] | None = None) -> None:
     c = sub.add_parser("check", help="verify uniqueness")
     c.add_argument("files", nargs="+")
     c.set_defaults(fn=cmd_check)
+
+    d = sub.add_parser("schedule", help="write daily sets (5, 7, 9) to <out>/YYYY-MM-DD.json")
+    d.add_argument("--launch", default=LAUNCH, help="date of puzzle No. 1 (YYYY-MM-DD)")
+    d.add_argument("--start", default=None, help="first date to write (default: launch)")
+    d.add_argument("--days", type=int, default=60)
+    d.add_argument("--out", default="../web/public/puzzles/daily")
+    d.add_argument("--force", action="store_true", help="overwrite existing days")
+    d.set_defaults(fn=cmd_schedule)
 
     s = sub.add_parser("show", help="ASCII render")
     s.add_argument("files", nargs="+")

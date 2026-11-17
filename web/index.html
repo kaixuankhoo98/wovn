@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
-    <title>Weave</title>
+    <title>wovn</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,23 +15,47 @@
   <body>
     <div class="page">
       <header class="top">
-        <h1 class="mark">Weave</h1>
-        <label class="picker">
+        <div class="masthead">
+          <h1 class="mark">wovn</h1>
+          <p id="day" class="day"></p>
+        </div>
+        <ol id="ladder" class="ladder" aria-label="Today's puzzles"></ol>
+        <label class="picker" id="picker-wrap" hidden>
           <span class="sr-only">Puzzle</span>
           <select id="picker"></select>
         </label>
       </header>
 
-      <main>
-        <p id="meta" class="meta"></p>
+      <section id="gate" class="gate" hidden aria-labelledby="gate-title">
+        <h2 id="gate-title" class="headline"></h2>
+        <ol id="gate-looms" class="samples"></ol>
+        <p id="gate-text" class="summary"></p>
+        <div class="controls">
+          <button id="begin" type="button" class="primary"></button>
+        </div>
+        <p id="gate-note" class="note"></p>
+      </section>
+
+      <main id="play" hidden>
         <div id="board" class="board"></div>
         <p id="status" class="status" aria-live="polite"></p>
         <div class="controls">
           <button id="undo" type="button">Undo</button>
           <button id="reset" type="button">Reset</button>
-          <button id="next" type="button" class="primary" hidden>Next puzzle</button>
+          <button id="next" type="button" class="primary" hidden></button>
         </div>
       </main>
+
+      <section id="results" class="results" hidden aria-labelledby="headline">
+        <h2 id="headline" class="headline"></h2>
+        <ol id="samples" class="samples"></ol>
+        <p id="summary" class="summary"></p>
+        <div class="controls">
+          <button id="share" type="button" class="primary">Share result</button>
+        </div>
+        <p id="share-status" class="status" aria-live="polite"></p>
+        <p class="countdown">Next puzzle in <span id="countdown" class="time"></span></p>
+      </section>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

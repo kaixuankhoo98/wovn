@@ -4,11 +4,11 @@ import json
 
 import pytest
 
-from weave_gen.generate import generate_many
-from weave_gen.io import puzzle_from_json, puzzle_to_json
-from weave_gen.model import PROFILES
-from weave_gen.sat import count_solutions
-from weave_gen.segment import quality
+from wovn_gen.generate import generate_many
+from wovn_gen.io import puzzle_from_json, puzzle_to_json
+from wovn_gen.model import PROFILES
+from wovn_gen.sat import count_solutions
+from wovn_gen.segment import quality
 
 
 def _puzzles(size, count, seed):
