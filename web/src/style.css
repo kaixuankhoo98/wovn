@@ -1,0 +1,183 @@
+:root {
+  --page: #d9e0e7; /* chambray */
+  --cloth: #ece5d6; /* undyed flax */
+  --weft: #e3dac7;
+  --warp: #e6ddcb;
+  --loom: rgba(70, 60, 45, 0.16);
+  --frame: #6b4a2f; /* walnut */
+  --wall: #4a2f1c;
+  --text: #1f2633;
+  --muted: #566170;
+  --button: #c9d2dc;
+  --button-hover: #bcc6d2;
+  --focus: #2f5da8;
+  --socket: rgba(70, 60, 45, 0.18);
+  --ply: rgba(20, 10, 0, 0.16);
+  --sheen: rgba(255, 255, 255, 0.28);
+  --rim: rgba(30, 15, 5, 0.35);
+
+  /* natural dyes */
+  --dye-0: #b8322a; --ink-0: #fff3e6; /* madder */
+  --dye-1: #2f5da8; --ink-1: #f2f5ff; /* woad */
+  --dye-2: #e0aa1e; --ink-2: #3a2604; /* weld */
+  --dye-3: #2a9886; --ink-3: #effffb; /* verdigris */
+  --dye-4: #c23a7a; --ink-4: #fff0f7; /* cochineal */
+  --dye-5: #7a4e2d; --ink-5: #fff1e2; /* walnut */
+  --dye-6: #e57322; --ink-6: #3a1a04; /* saffron */
+  --dye-7: #6b3fa0; --ink-7: #f6efff; /* logwood */
+  --dye-8: #7fa832; --ink-8: #1f2b06; /* lichen */
+  --dye-9: #6fb3e0; --ink-9: #0d2638; /* cornflower */
+  --dye-10: #4a5560; --ink-10: #f0f4f8; /* slate */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #121729; /* indigo night */
+    --cloth: #1d2542; /* indigo cloth */
+    --weft: #212a49;
+    --warp: #1a2240;
+    --loom: rgba(190, 200, 235, 0.12);
+    --frame: #cdbf9f; /* birch */
+    --wall: #e2d6bb;
+    --text: #e6e9f2;
+    --muted: #9aa3bd;
+    --button: #232c4b;
+    --button-hover: #2c3659;
+    --focus: #8fb6ff;
+    --socket: rgba(190, 200, 235, 0.16);
+    --ply: rgba(0, 0, 0, 0.2);
+    --sheen: rgba(255, 255, 255, 0.22);
+    --rim: rgba(0, 0, 0, 0.35);
+    --dye-0: #e0544a;
+    --dye-1: #5d8de0;
+    --dye-2: #f0c040;
+    --dye-3: #3cbca7;
+    --dye-4: #e05a9b;
+    --dye-5: #b07a4e;
+    --dye-6: #f38a3c;
+    --dye-7: #9a6ad6;
+    --dye-8: #97c447;
+    --dye-9: #8cc8ef;
+    --dye-10: #a3afbb; --ink-10: #1a2028;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #121729; --cloth: #1d2542; --weft: #212a49; --warp: #1a2240;
+  --loom: rgba(190, 200, 235, 0.12); --frame: #cdbf9f; --wall: #e2d6bb;
+  --text: #e6e9f2; --muted: #9aa3bd; --button: #232c4b; --button-hover: #2c3659;
+  --focus: #8fb6ff; --socket: rgba(190, 200, 235, 0.16); --ply: rgba(0, 0, 0, 0.2);
+  --sheen: rgba(255, 255, 255, 0.22); --rim: rgba(0, 0, 0, 0.35);
+  --dye-0: #e0544a; --dye-1: #5d8de0; --dye-2: #f0c040; --dye-3: #3cbca7; --dye-4: #e05a9b;
+  --dye-5: #b07a4e; --dye-6: #f38a3c; --dye-7: #9a6ad6; --dye-8: #97c447; --dye-9: #8cc8ef;
+  --dye-10: #a3afbb; --ink-10: #1a2028;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page);
+  color: var(--text);
+  font-family: "Schibsted Grotesk", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.mark {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+select, button {
+  font: inherit;
+  color: var(--text);
+  background: var(--button);
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 16px;
+  min-height: 40px;
+}
+select { padding-right: 12px; }
+button { cursor: pointer; font-weight: 500; }
+button:hover, select:hover { background: var(--button-hover); }
+button:focus-visible, select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+button.primary { background: var(--text); color: var(--page); font-weight: 700; }
+
+.meta, .status {
+  margin: 0;
+  color: var(--muted);
+}
+.time { white-space: nowrap; }
+.meta { margin-bottom: 10px; }
+.status { margin-top: 12px; min-height: 1.45em; }
+.status strong { color: var(--text); font-weight: 700; }
+
+.board {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.board svg { display: block; width: 100%; height: auto; }
+
+.controls { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.controls .primary { margin-left: auto; }
+
+/* --- board --- */
+.cloth { fill: var(--cloth); }
+.weft { fill: var(--weft); }
+.warp { fill: var(--warp); }
+.frame { fill: none; stroke: var(--frame); stroke-width: 9; }
+.loom { stroke: var(--loom); stroke-width: 1.5; }
+.wall { stroke: var(--wall); stroke-width: 11; stroke-linecap: round; }
+
+.socket rect { fill: var(--socket); }
+.socket rect.gap { fill: var(--cloth); }
+
+.thread { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+/* Ply: short butt-capped bands across the thread read as twisted yarn. */
+.ply { fill: none; stroke: var(--ply); stroke-linejoin: round; stroke-linecap: butt; stroke-dasharray: 3.5 6.5; }
+/* A thin darker edge gives the yarn body without a pipe-like highlight. */
+.edge { fill: none; stroke: var(--rim); stroke-linejoin: round; stroke-linecap: round; opacity: 0.55; }
+.gap-stroke { stroke: var(--cloth); stroke-linecap: butt; fill: none; }
+
+.knot-rim { fill: none; stroke: var(--rim); stroke-width: 3; }
+.knot.tied .knot-rim { stroke-width: 7; }
+
+/* A tied thread draws itself tight: a quick pulse on its knots. */
+.knot-body.pulse { animation: tighten 280ms ease-out; }
+@keyframes tighten {
+  50% { scale: 1.12; }
+}
+svg.solved { animation: settle 600ms ease-out; }
+@keyframes settle {
+  40% { scale: 1.015; }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .knot-body.pulse, svg.solved { animation: none; }
+}
