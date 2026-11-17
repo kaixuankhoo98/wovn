@@ -125,6 +125,7 @@ web/
   src/session.ts           one playable board: pointer input, undo/reset, timer, snapshot/restore
   src/daily.ts             no-DOM daily logic: dates, saved progress, streaks, share text
   src/config.ts            LAUNCH: the date of puzzle #1
+  src/guide.ts             How to play: example boards and copy
   src/main.ts              page wiring: ready screen, daily ladder, results screen, dev picker
   src/style.css            design tokens (light and dark), board styles
   public/puzzles/dev/      generated puzzles and index.json (also test fixtures)
@@ -201,6 +202,7 @@ A year of daily sets takes a few minutes.
   - Reaching the matching endpoint locks the thread, with a pulse and a short vibration.
 - **Controls:** Undo (also ⌘Z), Reset (counted), and a timer that starts on the first move and pauses when the tab is hidden.
 - **Daily ladder:** the page fetches `puzzles/daily/<local date>.json`. The header shows three **swatches** sized 5:7:9: the current one is ringed, upcoming ones are faded, solved ones show your finished cloth in miniature. Progress (stage, times, resets, solved boards and the in-progress board with its timer) is saved to `localStorage` under `wovn:v1` on every change and on `pagehide`, then restored on return. Each write re-reads storage and replaces only today's record, so two tabs don't clobber each other. Past days keep only their times.
+- **How to play:** a full-screen `<dialog>` opened from the **?** beside the wordmark (any screen) or the link in the ready screen's rules. It opens by itself once, on a first visit's ready screen (`wovn:guide-seen`). It covers the board and **holds the clock** while open. Sections: join the knots, walls, bridges, handy moves. The pictures are real boards drawn by the game's renderer, with ✓/✗ examples; `guide.test.ts` runs each through the rule checker, so ✓ ones must be valid and solved and ✗ ones must fail for exactly the stated reason.
 - **Results:** a big "Woven in m:ss" headline, the three swatches large with their times, resets and streak in one sentence, **Share result** (`navigator.share` on touch devices, otherwise the clipboard, otherwise the text shown to copy by hand), and a countdown to local midnight that reloads into the new day.
 
 ---
@@ -217,7 +219,7 @@ A year of daily sets takes a few minutes.
 ## Next steps
 
 ### M4: polish
-- A one-screen first-time guide with a tiny animated example, a PWA icon, and deploy to any static host.
+- ~~First-time guide~~ (done, as a How to play dialog). A PWA icon, and deploy to Vercel.
 - **Test on a real phone** (touch dragging, the share sheet, and layout at 360px).
 - Schedule more days before 2027-01-15 runs out: `schedule --start 2027-01-16 --days N`.
 

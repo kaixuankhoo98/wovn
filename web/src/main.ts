@@ -19,6 +19,7 @@ import {
   type DaySet,
 } from "./daily";
 import { LAUNCH } from "./config";
+import { guideHTML } from "./guide";
 import { emptyState } from "./input";
 import { Geometry, type Paths, type Puzzle } from "./puzzle";
 import { render } from "./render";
@@ -107,6 +108,41 @@ async function copyText(text: string): Promise<boolean> {
   return ok;
 }
 
+// --- how to play ---
+
+const guideEl = $<HTMLDialogElement>("guide");
+const GUIDE_SEEN = "wovn:guide-seen";
+function openGuide() {
+  if (guideEl.open) return;
+  if (!guideEl.firstChild) guideEl.innerHTML = guideHTML();
+  session?.holdClock();
+  guideEl.showModal();
+  guideEl.scrollTop = 0;
+}
+// "close" fires for the buttons and for Escape alike.
+guideEl.addEventListener("close", () => {
+  session?.releaseClock();
+  try {
+    localStorage.setItem(GUIDE_SEEN, "1");
+  } catch {
+    // ignore
+  }
+});
+guideEl.addEventListener("click", (e) => {
+  if ((e.target as Element).closest("[data-close]")) guideEl.close();
+});
+$("help").addEventListener("click", openGuide);
+document.addEventListener("click", (e) => {
+  if ((e.target as Element).closest("[data-guide]")) openGuide();
+});
+const guideSeen = () => {
+  try {
+    return localStorage.getItem(GUIDE_SEEN) === "1";
+  } catch {
+    return true; // storage blocked: don't pop it open on every visit
+  }
+};
+
 /** Move focus to the next action for keyboard users; on touch screens it only adds a stray ring. */
 const focusAction = (el: HTMLElement) => {
   if (!matchMedia("(pointer: coarse)").matches) el.focus({ preventScroll: true });
@@ -116,7 +152,8 @@ const focusAction = (el: HTMLElement) => {
 
 const longDate = (key: string) => {
   const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+  // Short, so the header still fits beside the progress swatches on a 360px phone.
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
 };
 
 async function daily() {
@@ -202,9 +239,10 @@ async function daily() {
       $("gate-note").textContent = "The clock starts again when you tap Resume.";
     } else {
       $("gate-title").textContent = i === 0 ? "Ready to begin?" : `Ready for the ${n}×${n}?`;
-      $("gate-text").textContent =
+      $("gate-text").innerHTML =
         i === 0
-          ? "Join each pair of matching knots with one thread, and fill every square. Threads can't cross walls, and only cross each other straight over a bridge."
+          ? "Join each pair of matching knots with one thread, and fill every square. Threads can't cross walls, and only cross each other straight over a bridge. " +
+            '<button type="button" class="link" data-guide>See how walls and bridges work</button>'
           : "";
       begin.textContent = `Start ${n}×${n}`;
       $("gate-note").textContent =
@@ -220,6 +258,8 @@ async function daily() {
       play(i);
     };
     focusAction(begin);
+    // First visit: show the guide once, before anything starts.
+    if (i === 0 && !paused && !guideSeen()) openGuide();
   };
 
   const play = (i: number) => {

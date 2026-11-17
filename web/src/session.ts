@@ -27,6 +27,7 @@ export class Session {
   private elapsed = 0;
   private runningSince: number | null = null;
   private tick: number | undefined;
+  private held = false; // clock held while an overlay (the guide) covers the board
   private pointer: number | null = null;
   private lastCell: number | null = null;
   private abort = new AbortController();
@@ -76,13 +77,24 @@ export class Session {
     this.commit(emptyState(this.geo));
   }
 
+  /** Stop the clock while something covers the board. */
+  holdClock() {
+    this.held = true;
+    this.stopTimer();
+  }
+
+  releaseClock() {
+    this.held = false;
+    this.startTimer();
+  }
+
   destroy() {
     this.stopTimer();
     this.abort.abort();
   }
 
   private startTimer() {
-    if (this.runningSince === null && !this.solved && !document.hidden) {
+    if (this.runningSince === null && !this.solved && !this.held && !document.hidden) {
       this.runningSince = performance.now();
       this.tick = window.setInterval(() => this.hooks.onChange(), 500);
     }
