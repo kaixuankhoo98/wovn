@@ -4,12 +4,10 @@ import type { Snapshot } from "./session";
 
 export interface DaySet {
   date: string; // YYYY-MM-DD
-  number: number; // days since launch, starting at 1
   puzzles: Puzzle[]; // 5x5, 7x7, 9x9
 }
 
 export interface DayRecord {
-  number: number;
   stage: number; // index of the puzzle being played; puzzles.length when done
   times: (number | null)[]; // ms per solved puzzle
   resets: number[];
@@ -66,8 +64,16 @@ export function fmtCountdown(ms: number): string {
   return `${Math.floor(s / 3600)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
 }
 
-export const freshRecord = (number: number, count = 3): DayRecord => ({
-  number,
+/** Puzzle number for a date: the launch date is #1. Zero or less means before launch. */
+export function dayNumber(date: string, launch: string): number {
+  // Round, because a span crossing a daylight-saving change isn't a whole number of 24h days.
+  return Math.round((parseKey(date).getTime() - parseKey(launch).getTime()) / 86_400_000) + 1;
+}
+
+/** "#12", or "Preview" for days before launch. */
+export const dayLabel = (n: number) => (n >= 1 ? `#${n}` : "Preview");
+
+export const freshRecord = (count = 3): DayRecord => ({
   stage: 0,
   times: Array(count).fill(null),
   resets: Array(count).fill(0),
@@ -98,8 +104,8 @@ export function streak(save: Save, today: string): { current: number; best: numb
 
 const SWATCH = ["▫️", "◽", "◻️"]; // small, medium, large: one per grid size
 
-export function shareText(rec: DayRecord, sizes: number[], streakNow: number): string {
-  const lines = [`wovn #${rec.number}  ${fmt(total(rec))}`];
+export function shareText(rec: DayRecord, number: number, sizes: number[], streakNow: number): string {
+  const lines = [`wovn ${number >= 1 ? `#${number}` : "preview"}  ${fmt(total(rec))}`];
   sizes.forEach((n, i) => lines.push(`${SWATCH[i] ?? "◻️"} ${n}×${n}  ${fmt(rec.times[i] ?? 0)}`));
   if (streakNow > 0) lines.push(`🔥 ${streakNow}`);
   return lines.join("\n");

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { dateKey, fmt, fmtCountdown, freshRecord, msToMidnight, prune, shareText, streak, type Save } from "./daily";
+import { dateKey, dayLabel, dayNumber, fmt, fmtCountdown, freshRecord, msToMidnight, prune, shareText, streak, type Save } from "./daily";
 
-const done = (number: number, onTime = true) => ({
-  ...freshRecord(number),
+const done = (_day = 0, onTime = true) => ({
+  ...freshRecord(),
   stage: 3,
   times: [21_456, 64_009, 107_999],
   onTime,
@@ -15,6 +15,25 @@ describe("dates", () => {
   it("counts down to local midnight", () => {
     expect(msToMidnight(new Date(2026, 10, 17, 23, 59, 30))).toBe(30_000);
     expect(fmtCountdown(3_600_000 + 61_000)).toBe("1:01:01");
+  });
+});
+
+describe("day number", () => {
+  it("counts from the launch date as #1", () => {
+    expect(dayNumber("2026-11-17", "2026-11-17")).toBe(1);
+    expect(dayNumber("2027-01-15", "2026-11-17")).toBe(60);
+  });
+  it("is whole across a daylight-saving change", () => {
+    expect(dayNumber("2027-04-10", "2027-03-20")).toBe(22);
+    expect(dayNumber("2026-11-10", "2026-10-20")).toBe(22);
+  });
+  it("labels days before launch as a preview", () => {
+    expect(dayNumber("2026-11-15", "2026-11-17")).toBe(-1);
+    expect(dayLabel(-1)).toBe("Preview");
+    expect(dayLabel(3)).toBe("#3");
+  });
+  it("shares a preview day without a number", () => {
+    expect(shareText(done(), 0, [5, 7, 9], 0).split("\n")[0]).toBe("wovn preview  3:13.44");
   });
 });
 
@@ -47,7 +66,7 @@ describe("streak", () => {
 
 describe("share text", () => {
   it("gives times only, never the board", () => {
-    expect(shareText(done(142), [5, 7, 9], 12)).toBe(
+    expect(shareText(done(), 142, [5, 7, 9], 12)).toBe(
       ["wovn #142  3:13.44", "▫️ 5×5  0:21.45", "◽ 7×7  1:04.00", "◻️ 9×9  1:47.99", "🔥 12"].join("\n"),
     );
   });

@@ -18,15 +18,16 @@ def day_seed(day: date, size: int) -> int:
     return day.toordinal() * 10 + size
 
 
-def make_day(day: date, launch: date) -> dict[str, Any]:
+def make_day(day: date) -> dict[str, Any]:
     puzzles = []
     for size in LADDER:
         p, _ = next(generate_many(size, 1, day_seed(day, size)))
         puzzles.append(puzzle_to_json(p))
-    return {"date": day.isoformat(), "number": (day - launch).days + 1, "puzzles": puzzles}
+    # No puzzle number here: the web client derives it from its LAUNCH date.
+    return {"date": day.isoformat(), "puzzles": puzzles}
 
 
-def schedule(launch: date, start: date, days: int, out: Path, force: bool = False):
+def schedule(start: date, days: int, out: Path, force: bool = False):
     """Write daily/YYYY-MM-DD.json for each day. Existing files are kept unless
     `force`, so puzzles people may already have played never change."""
     out.mkdir(parents=True, exist_ok=True)
@@ -36,5 +37,5 @@ def schedule(launch: date, start: date, days: int, out: Path, force: bool = Fals
         if path.exists() and not force:
             yield day, path, False
             continue
-        path.write_text(json.dumps(make_day(day, launch), separators=(",", ":")) + "\n")
+        path.write_text(json.dumps(make_day(day), separators=(",", ":")) + "\n")
         yield day, path, True

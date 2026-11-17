@@ -1,6 +1,8 @@
 import "./style.css";
 import {
   dateKey,
+  dayLabel,
+  dayNumber,
   fmt,
   fmtClock,
   fmtCountdown,
@@ -16,6 +18,7 @@ import {
   type DayRecord,
   type DaySet,
 } from "./daily";
+import { LAUNCH } from "./config";
 import { emptyState } from "./input";
 import { Geometry, type Paths, type Puzzle } from "./puzzle";
 import { render } from "./render";
@@ -145,7 +148,8 @@ async function daily() {
   set = await res.json();
 
   const save = prune(loadSave(), today);
-  const rec: DayRecord = (save.days[set.date] ??= freshRecord(set.number, set.puzzles.length));
+  const rec: DayRecord = (save.days[set.date] ??= freshRecord(set.puzzles.length));
+  const number = dayNumber(set.date, LAUNCH);
   const sizes = set.puzzles.map((p) => p.size);
   // Re-read before writing so another tab's days aren't clobbered; only today's record is ours.
   let cleared = false; // set by the dev tool below so pagehide can't save the day back
@@ -155,7 +159,7 @@ async function daily() {
     latest.days[set.date] = rec;
     writeSave(latest);
   };
-  dayEl.textContent = `#${set.number}, ${longDate(set.date)}`;
+  dayEl.textContent = `${dayLabel(number)}, ${longDate(set.date)}`;
 
   const drawLadder = (current: number) => {
     ladderEl.innerHTML = set.puzzles
@@ -297,7 +301,7 @@ async function daily() {
     const shareBtn = $<HTMLButtonElement>("share");
     const shareStatus = $("share-status");
     shareBtn.onclick = async () => {
-      const text = shareText(rec, sizes, rec.onTime === false ? 0 : current);
+      const text = shareText(rec, number, sizes, rec.onTime === false ? 0 : current);
       if (navigator.share && matchMedia("(pointer: coarse)").matches) {
         try {
           await navigator.share({ text });

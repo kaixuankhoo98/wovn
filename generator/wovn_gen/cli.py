@@ -15,8 +15,6 @@ from .render import render
 from .sat import count_solutions
 from .schedule import schedule
 
-LAUNCH = "2026-11-17"  # puzzle No. 1
-
 
 def cmd_make(a: argparse.Namespace) -> None:
     out = Path(a.out)
@@ -69,11 +67,10 @@ def cmd_show(a: argparse.Namespace) -> None:
 
 
 def cmd_schedule(a: argparse.Namespace) -> None:
-    launch = date.fromisoformat(a.launch)
-    start = date.fromisoformat(a.start) if a.start else launch
+    start = date.fromisoformat(a.start) if a.start else date.today()
     t0 = time.time()
     made = 0
-    for day, path, wrote in schedule(launch, start, a.days, Path(a.out), a.force):
+    for day, path, wrote in schedule(start, a.days, Path(a.out), a.force):
         made += wrote
         print(f"{path.name}: {'written' if wrote else 'exists, kept'}", file=sys.stderr)
     print(f"{made} new days in {time.time() - t0:.1f}s", file=sys.stderr)
@@ -98,8 +95,7 @@ def main(argv: list[str] | None = None) -> None:
     c.set_defaults(fn=cmd_check)
 
     d = sub.add_parser("schedule", help="write daily sets (5, 7, 9) to <out>/YYYY-MM-DD.json")
-    d.add_argument("--launch", default=LAUNCH, help="date of puzzle No. 1 (YYYY-MM-DD)")
-    d.add_argument("--start", default=None, help="first date to write (default: launch)")
+    d.add_argument("--start", default=None, help="first date to write, YYYY-MM-DD (default: today)")
     d.add_argument("--days", type=int, default=60)
     d.add_argument("--out", default="../web/public/puzzles/daily")
     d.add_argument("--force", action="store_true", help="overwrite existing days")

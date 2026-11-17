@@ -27,7 +27,7 @@ cd generator
 uv run python -m wovn_gen make --size 9 --count 10 --seed 1   # writes ../web/public/puzzles/dev/
 uv run python -m wovn_gen check ../web/public/puzzles/dev/*.json
 uv run python -m wovn_gen show  ../web/public/puzzles/dev/9-s1-001.json [--blank]
-uv run python -m wovn_gen schedule --days 60                  # writes ../web/public/puzzles/daily/YYYY-MM-DD.json
+uv run python -m wovn_gen schedule --start 2027-01-16 --days 60   # writes ../web/public/puzzles/daily/YYYY-MM-DD.json (start defaults to today)
 uv run pytest
 
 # web (Vite + plain TypeScript)
@@ -59,7 +59,7 @@ npm run build
 
 There's no way to fail. Scoring is based on time, and the number of resets is recorded. The share text never reveals the solution.
 
-- **Day number:** 2026-11-17 is #1 (`LAUNCH` in `cli.py`).
+- **Day number:** derived in the client from `LAUNCH` in `web/src/config.ts` (currently 2026-11-17 = #1). Moving launch is that one line: puzzles are chosen by calendar date, so none change. Days before launch still play and show as "Preview" (share text says `wovn preview`).
 - **Ready screen:** no board is shown until the player taps **Start 5×5**. The screen shows the three blank looms (no knots, so no free study time), a one-paragraph rules summary, and a note that the clock starts on Start. **The clock runs from when a board appears, not from the first move.**
 - **Coming back:** partway through a grid gives "Paused at m:ss" and **Resume 7×7** (board hidden while paused). Between grids gives "Ready for the 7×7?" and **Start 7×7**. A finished day goes straight to results.
 - **Between puzzles:** the solved board stays up until the player taps **Start 7×7** / **Start 9×9** / **See results**, which starts the next clock straight away.
@@ -92,7 +92,7 @@ There's no way to fail. Scoring is based on time, and the number of resets is re
 | 8 | **No detours**: a thread can never sit next to another part of itself unless a wall separates them | Bans artificial filler such as "left, down, right" just to fill a 2-cell gap. Going around the end of a wall is still allowed. A milder setting, `detours="no-uturns"`, bans only the 2-cell U-turn. |
 | 9 | Name is **wovn** (lowercase everywhere, including share text) | Decided 2026-11-17. |
 | 10 | **No difficulty grading for now** | Your call. Daily sets are ordered by size only; revisit if days feel uneven. |
-| 11 | Launch date 2026-11-17 is #1, for now | Placeholder until a real launch date. Changing it means regenerating with `--force`. |
+| 11 | Launch date lives in one place (`web/src/config.ts`), not in puzzle files | 2026-11-17 is a placeholder #1. Changing it is a one-line edit and a redeploy, no regeneration. |
 | 12 | Streak needs all three solved on the day | Your call. |
 | 13 | Only today's set is playable | Your call. Keeps v1 simple. |
 | 14 | Manual "Start next" button between puzzles | Your call. Gives a moment to look at the solved cloth. |
@@ -124,10 +124,11 @@ web/
   src/render.ts            SVG textile renderer
   src/session.ts           one playable board: pointer input, undo/reset, timer, snapshot/restore
   src/daily.ts             no-DOM daily logic: dates, saved progress, streaks, share text
-  src/main.ts              page wiring: daily ladder, results screen, dev picker
+  src/config.ts            LAUNCH: the date of puzzle #1
+  src/main.ts              page wiring: ready screen, daily ladder, results screen, dev picker
   src/style.css            design tokens (light and dark), board styles
   public/puzzles/dev/      generated puzzles and index.json (also test fixtures)
-  public/puzzles/daily/    one file per date: {date, number, puzzles: [5x5, 7x7, 9x9]}
+  public/puzzles/daily/    one file per date: {date, puzzles: [5x5, 7x7, 9x9]}
 docs/PLAN.md               this file
 ```
 
@@ -148,7 +149,7 @@ There's no backend in v1. Puzzles are generated offline and served as static JSO
 ```
 
 - Coordinates are `[row, col]`. Walls are stored only as `E` or `S`, so each one has a single canonical form. A wall piece is just several adjacent wall entries.
-- Dev files contain one puzzle each. Daily files wrap three: `{date, number, puzzles: [...]}`. The CLI reads both shapes.
+- Dev files contain one puzzle each. Daily files wrap three: `{date, puzzles: [...]}`. The CLI reads both shapes. The day number is not stored anywhere; the client derives it from `LAUNCH`.
 - Daily seeds are `date.toordinal() * 10 + size`, so any day can be regenerated exactly.
 - The client checks a board against the **rules**, never against `solution`. `solution` is kept for debugging and `&reveal=1`.
 
@@ -207,8 +208,8 @@ A year of daily sets takes a few minutes.
 ## Testing
 
 - **Generator (pytest):** the SAT counter must agree with a brute-force solver on random 4×4 and 5×5 puzzles (unique, 2 and 3+ solutions, with and without bridges). Property tests on generated puzzles check: unique, every node covered once, threads of 3+ cells, no endpoint on a bridge, bridge colours differ, counts within the profile, **no self-touches or straight threads**, walls never block the solution or touch a bridge. Also a JSON round trip and that the same seed gives the same puzzle.
-- **Generator schedule tests:** day shape and numbering, uniqueness of each daily puzzle, same date gives the same set, and existing days are never overwritten.
-- **Web (vitest, 43 tests):** every dev fixture's solution passes the rule checker, input state machine tests (extend, shorten, straight-line fill, walls, cut and regrow, bridge rules, tap to clear), plus daily logic: local dates, countdown, streaks (including unfinished days, finishing after midnight, month and year ends), share text and pruning.
+- **Generator schedule tests:** day shape (no stored number), uniqueness of each daily puzzle, same date gives the same set, and existing days are never overwritten.
+- **Web (vitest, 43 tests):** every dev fixture's solution passes the rule checker, input state machine tests (extend, shorten, straight-line fill, walls, cut and regrow, bridge rules, tap to clear), plus daily logic: local dates, day numbers (including across daylight saving and before launch), countdown, streaks (including unfinished days, finishing after midnight, month and year ends), share text and pruning.
 - **Manual:** a 5×5 with a bridge and a wall was solved with real mouse drags in Chrome (light mode). Dark mode was checked visually. The full daily flow (restore mid-puzzle, solve, Start next, results, share to clipboard, reload on a finished day) was run in Chrome with pointer events, and the layout checked at 360px in both themes.
 
 ---
@@ -225,7 +226,7 @@ A year of daily sets takes a few minutes.
 ## Open questions
 - Should resets, or a future hint button, affect the score?
 - Is a daily leaderboard wanted later? It would need a small backend.
-- What should the real launch date be? Today (2026-11-17) is a placeholder #1.
+- What should the real launch date be? 2026-11-17 is a placeholder #1 (one line in `web/src/config.ts`).
 - Should every 5×5 have at least one wall? It currently has none about half the time.
 - Are long threads OK? On 9×9 a thread can wind through about 20 cells. A lower length cap is an easy lever if that feels like busywork.
 - Should puzzle filenames be salted hashes, so players can't look ahead? This was acceptable to skip for v1.
